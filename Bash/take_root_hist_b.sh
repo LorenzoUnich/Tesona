@@ -1,4 +1,4 @@
-#!/bin/bash
+#Script to take the kitemmuort of the file of bands, just beacuse they have all weird names
 
 remote_base="ulorenzo@cca.in2p3.fr:/sps/km3net/users/lunich/binned/arca-ps-aart_update_bands/scripts/new_fit_analysis/automated_bands/all"
 
