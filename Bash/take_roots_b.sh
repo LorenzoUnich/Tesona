@@ -1,7 +1,12 @@
 #script to take the root files of the analysis without any band 
 
 remote_base="ulorenzo@cca.in2p3.fr:/sps/km3net/users/lunich/binned/arca-ps-aart_update_bands/scripts/declination_arca_21"
-
+folders=(
+  "1006"
+  "0602"
+  "0202"
+  "0206"
+  )
 files=(
   "Source_cand_0_first_declination_histograms_without_2pi.root"
   "Source_cand_1_second_declination_histograms_without_2pi.root"
