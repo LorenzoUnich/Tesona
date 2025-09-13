@@ -1,6 +1,6 @@
 #script to take the root files of the analysis without any band 
 
-remote_base="ulorenzo@cca.in2p3.fr:/sps/km3net/users/lunich/binned/arca-ps-aart_update_bands/scripts/declination_arca_21"
+remote_base="ulorenzo@cca.in2p3.fr:/sps/km3net/users/lunich/binned/arca-ps-aart_update_bands/scripts/new_fit_analysis"
 folders=(
   "1006"
   "0602"
@@ -19,5 +19,8 @@ files=(
 )
 
 for file in "${files[@]}"; do
-  scp "$remote_base/$file" .
+
+  for fol in "${folders[@]}"; do
+  	scp "$remote_base/$fol/$file" .
+  done
 done
