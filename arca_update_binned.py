@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+#the same as the other, just a copy to do another run 
 
 """
 arca point source analysis 
@@ -18,7 +18,7 @@ Produce results, from a combined analysis:
  -a : agragate/combine the candidates searches       default=False
  -A : ANTARES sample                                 default=No
  -b : batch                                          default=True
- -B : band for the noise modeling                    default="all"
+ -B : band for the noise modelling                   default="all"
  -c : run a list of candidates                       default=none
  -d : debug                                          default=False
  -F : fluxexpression                                 default=1
@@ -65,7 +65,7 @@ import pandas as pd
 #multiprocessing.set_start_method('spawn')
 
 import time
-
+import math
 
 L = "anutauCCshowerdecay anutauCCmuondecay anutauNC anumuCC anumuNC anueCC anueNC muonMuon nueCC nueNC numuCC numuNC nutauCCshowerdecay nutauCCmuondecay nutauNC"
 
@@ -89,8 +89,7 @@ os.system(f"mkdir -p {outputpath}")
 #print(ROOT.Det())
 
 # The following trick is needed to read old (existing) picklefiles.
-# It loads the streamerinfo needed to read them.
-# # next time, let's store the evt's in a root file.
+# It loads the streamerinfo needed to read them.# # next time, let's store the evt's in a root file.
 
 dum = ROOT.TFile("./N2022_PS_selection/datav6.2.jchain.aashower.dst.merged_9635_10005_pre_upm01_antinoise_upaam01.root")
 
@@ -101,19 +100,15 @@ energy_min = options.M
 energy_max = options.m
 
 #@staticmethod
-
-
+catalouge_name = "catalogue_declination_TRUE.csv"
 
 def get_gauss_expr_string(params):
     """
-    Restituisce una stringa dell'espressione analitica della tripla gaussiana con i parametri inseriti.
-    params: lista di 9 parametri [norm1, mean1, sigma1, norm2, mean2, sigma2, norm3, mean3, sigma3]
+    Gives as a result the string of the gaussian for the input parameters.
+    params: list of 9 paramters [norm1, mean1, sigma1, norm2, mean2, sigma2, norm3, mean3, sigma3]
     """
     return   f"{params[0]}*exp(-0.5*((x - {params[1]})/{params[2]})**2) + " f"{params[3]}*exp(-0.5*((x - {params[4]})/{params[5]})**2) + " f"{params[6]}*exp(-0.5*((x - {params[7]})/{params[8]})**2)"
-    
-
-from iminuit import Minuit
-import numpy as np
+    import numpy as np
 from math import exp, sqrt, pi
 
 def triple_gaussian(x, norm1, mean1, sigma1,
@@ -122,54 +117,6 @@ def triple_gaussian(x, norm1, mean1, sigma1,
     def gauss(n, m, s):
         return n * exp(-0.5 * ((x - m)/s)**2) / (s * sqrt(2*pi))
     return gauss(norm1, mean1, sigma1) + gauss(norm2, mean2, sigma2) + gauss(norm3, mean3, sigma3)
-
-def fit_histogram(datasample):
-    hist = datasample.hist
-    zeta_bins = hist.GetZaxis().GetNbins()
-
-    x_vals = []
-    y_vals = []
-
-
-    for i in range(1, zeta_bins + 1):
-        content = hist.Integral(1, hist.GetXaxis().GetNbins(),
-                                1, hist.GetYaxis().GetNbins(),
-                                i, i)
-
-
-        center = hist.GetZaxis().GetBinCenter(i)
-        x_vals.append(center)
-        y_vals.append(content)
-
-
-    x_vals = np.array(x_vals)
-    y_vals = np.array(y_vals)
-
-
-# Migrad remember that is a method that minimises the chi^2. So    
-    def chi2(norm1, mean1, sigma1,
-             norm2, mean2, sigma2,
-             norm3, mean3, sigma3):
-        return np.sum((
-            (triple_gaussian(x_vals[i], norm1, mean1, sigma1,
-                                      norm2, mean2, sigma2,
-                                      norm3, mean3, sigma3) - y_vals[i])
-        )**2 for i in range(len(x_vals)))
-
-    m = Minuit(chi2,
-               norm1=100, mean1=2.0, sigma1=0.3,
-               norm2=100, mean2=2.5, sigma2=0.3,
-               norm3=100, mean3=3.0, sigma3=0.3)
-
-
-    m.migrad()
-
-    params = [m.values[k] for k in ['norm1', 'mean1', 'sigma1',
-                                    'norm2', 'mean2', 'sigma2',
-                                    'norm3', 'mean3', 'sigma3']]
-    return params
-
-
 def load( picklefile, s_min, s_max ) :
     'workaround for loading old pickle files'
     import __main__
@@ -184,7 +131,7 @@ def load( picklefile, s_min, s_max ) :
 def weight_source(x):
     #x =sys.argv[1]
     
-    with open("weight_seyfert_stacking.dat", "r") as file:
+    with open("weight_SBGs_radio.txt", "r") as file:
         cont = file.read()
         values = cont.split()
         weight = float(values[x])
@@ -220,7 +167,7 @@ class ArcaBinnedPointSourceAnalysis ( BinnedPointSourceAnalysis ):
         self.name = name
         BinnedPointSourceAnalysis.__init__(self)
 
-        self.candlist = CandidateList(options.t + '/inputdata/catalogue_declination_TRUE.csv')
+        self.candlist = CandidateList(options.t + '/inputdata/' + catalouge_name )
         print(self.candlist.pretty_table())
 
         self.picklepath  = outputpath
@@ -233,10 +180,14 @@ class ArcaBinnedPointSourceAnalysis ( BinnedPointSourceAnalysis ):
             
         elif options.D==False: #PER ORA CONSIDERA QUESTO CAPRA!
 
-            #self.fluxexpr    = "("+str(weight_source(int(options.c)))+"*1e4*0.5*1e-4*x**-2)" #Seyfert spectrum -2 weighted   
+           #self.fluxexpr    = "("+str(weight_source(int(options.c)))+"*1e-4*x**-2)" #Seyfert spectrum -2 weighted  Walid non è sicuro che fatto re può mettere.
+           #hai messo il fattore per due rispetto all'iniziale
+           #non è detta che con il peso che tu metti che 6 vada bene (potrebbe essere 10!!) allora metti il pes e poi metti un fattore avanti a tutte elsorgenti.
+           #quindi metti un fattoe che rinormalizzi
+           #stackling ha flag L e quella la lancio per tutto il catalogo
             #self.fluxexpr    = "("+str(weight_source(int(options.c)))+"*1e4*0.5*(1e4)*(1.5332e-11)*((x/100)**-2.8))" #SBG weighted
             #self.fluxexpr="(0.5*(1e4)*(1.5332e-11)*((x/100)**-2.0))" # SBG weighted equal
-            self.fluxexpr="(1e-4*x**-2)" #CAMBIATO IL FLUSSO 
+           self.fluxexpr="(0.5*1e-4*x**-2)" #CAMBIATO IL FLUSSO 
 #            self.fluxexpr="10*0.5*0.5*1e-4*x**-2"
 
         self.flag_flux= options.W
@@ -299,43 +250,66 @@ class ArcaBinnedPointSourceAnalysis ( BinnedPointSourceAnalysis ):
         '''
         print(options.B)
         band =  options.B
+        
         if band==  "all":
-         self.s_min, self.s_max = -1, 1
+         self.s_min, self.s_max = -1, 1   # all declination!
          
-         #all neutrino flavoursx
-         addperiod ("ARCA21_track","inputdata/202475_5_53_29_DETECTORESPONSE_ARCA21_133_tmva_tracks_v10.ALL_zen_b40_pre_upm01_antinoise_bdt095.root","inputdata/DS_P133.all_tmva_tracks_v10_pre_upm01_antinoise_bdt095.pickle","1033.9462443148202*exp(-0.5*pow((x-3.593382403792754)/0.5532062653963777,2))+9.750099808580014e-07*exp(-0.5*pow((x-4.292137178498489)/3.3293596715027034,2))+316.17663638080796*exp(-0.5*pow((x-2.2435144672644527)/1.1909797511602955,2))" ,mcfiletypes = allmcfiletypes, det = det_ARCA,syst_acc = 0.3, syst_PSF = 0.5)
+         #all neutrino flavours
+         func = "1033.9462443148202*exp(-0.5*pow((x-3.593382403792754)/0.5532062653963777,2))+9.750099808580014e-07*exp(-0.5*pow((x-4.292137178498489)/3.3293596715027034,2))+316.17663638080796*exp(-0.5*pow((x-2.2435144672644527)/1.1909797511602955,2))"
          print("No bands used! Fit of the background without cuts")
-        elif  band == "auto":
+        elif band == "auto":
           candum = options.c          
-          df = pd.read_csv("/sps/km3net/users/lunich/binned/arca-ps-aart_update_bands/inputdata/catalogue_declination_TRUE.csv", sep = "\t", names = ["name", "type", "idk ", "declination", "extended", "galacitc"])
+          df = pd.read_csv("/sps/km3net/users/lunich/binned/arca-ps-aart_update_bands/inputdata/"+ catalouge_name, sep = "\t", names = ["name", "type", "idk ", "declination", "extended", "galacitc"])
           print(df.declination)
           dec =  df.declination[int(candum)]
-          s_dec = sin(dec)
-          self.s_min, self.s_max = s_dec-0.2, s_dec+0.2
-          params =fit_histogram(dataset)
-          func = get_gauss_expr_string(params)  
-        else:
-       	    
-            if band == "1006":
+          dec_rad = math.radians(dec)
+          s_dec = sin(dec_rad)
+          print("Dec is: ",dec_rad)
+          print("Sin(dec) is: ",sin(dec_rad))
+          self.s_min,self.s_max = s_dec-0.2, s_dec+0.2
+          #min,max=s_dec-0.2, s_dec+0.2
+          if s_dec<-0.8:
+            self.s_min = -1
+            self.s_max = -0.6
+          if s_dec>0.6:
+            self.s_max = 0.8
+            self.s_min = 0.4
+          ds = load("inputdata/DS_P133.all_tmva_tracks_v10_pre_upm01_antinoise_bdt095.pickle", self.s_min, self.s_max)
+          #params = fit_histogram(ds)
+          #func = get_gauss_expr_string(params)  
+          func = ""
+          
+        elif band == "1006":
                self.s_min, self.s_max = -1,-0.6
-            elif band == "0602":
+               gauss_params = [316.0, 3.5, 0.6, 50.0, 2.0, 1.0, 50.0, 2.0, 1.0]
+               func=get_gauss_expr_string(gauss_params)
+        elif band == "0602":
                self.s_min, self.s_max = -0.6,-0.2
-            elif band == "0202":
+               gauss_params =  [196.0, 3.8, 0.4, 130.0, 3.1, 0.3, 100.0, 2.0, 1.2],
+               func=get_gauss_expr_string(gauss_params)
+        elif band == "0202":
                self.s_min, self.s_max = -0.2,0.2
-            elif band == "0206":
+               gauss_params = [63.0, 4.0, 0.0, 170.0, 4.0, 0.6, 51.0, 2.0, 1.0]
+               func=get_gauss_expr_string(gauss_params)
+        elif band == "0206":
                self.s_min, self.s_max = 0.2,0.6
+               gauss_params =  [187.0, 3.5, 0.6, 21.0, 2.0, 0.0, 26.0, 3.0, 1.0]
+               func=get_gauss_expr_string(gauss_params)       
 
-            gauss_params = { "1006": [148.279, 3.8, 0.55942, 200, 3.3158, 0.520326, 100, 1.94776, 1.2378],"0602": [107.582, 4.0645, 0.309904, 200, 3.3701, 0.455109, 91.9832, 2.16569, 1.24995],  "0202": [19.8355, 3.80251, 0.0941765, 196.881, 3.59627, 0.554965, 54.8144, 2.19206, 1.19745], "0206": [49.7385, 3.85044, 0.0881074, 190.827, 3.49112, 0.667564,38.4423, 1.68444, 0.320217]}
-            func= get_gauss_expr_string(gauss_params[band])
-            
+        elif band == "hist":
+               self.s_min, self.s_max = -1,0.8
+               func="hist"
+        else:
+         print("!!!!ATTENTION!!!!")
+         print( "I did NOT recognise the band parameter you gave me. This means that I am going to go with a band wide as all the declinations")
+         print("!!!ATTENTION!!!")
+         func = "1033.9462443148202*exp(-0.5*pow((x-3.593382403792754)/0.5532062653963777,2))+9.750099808580014e-07*exp(-0.5*pow((x-4.292137178498489)/3.3293596715027034,2))+316.17663638080796*exp(-0.5*pow((x-2.2435144672644527)/1.1909797511602955,2))" 
+
         addperiod ("ARCA21_track","inputdata/202475_5_53_29_DETECTORESPONSE_ARCA21_133_tmva_tracks_v10.ALL_zen_b40_pre_upm01_antinoise_bdt095.root","inputdata/DS_P133.all_tmva_tracks_v10_pre_upm01_antinoise_bdt095.pickle",func,mcfiletypes = allmcfiletypes, det = det_ARCA,syst_acc = 0.3, syst_PSF = 0.5)
-        width = "from sin "+str(self.s_min)+"to sin" + str(self.s_max )
-        print("band", width, " with background function", func)
-         
-        '''
-        addperiod( "ANTAREStrack","inputdata/2024_1_6_12_8_DETECTORESPONSE_ANTARES_TRACK_HONDA_zen_CutLevel1_local_b40_watm_honda_nutau_2022.root","inputdata/DS_Adata_all4tracks.pickle","148*exp(-0.5*pow((x-3.80)/0.55,2))+200*exp(-0.5*pow((x-3.32)/0.52,2))+100*exp(-0.5*pow((x-1.95)/1.24,2))", det = det_ARCA)
-        '''
         
+        width = "from sin "+str(self.s_min)+" to sin " + str(self.s_max )
+        print("band", width, " with background function", func)
+             
         if not options.q :
 
             '''
@@ -478,7 +452,7 @@ if __name__ == "__main__" :
             ana.write_rootfile() #update path.  Usciranno due file root, uno sulle pdf e uno su istogramma
 	#ogni volta cambia il path ogni volta per avere in cartelle diverse . Oppure automatizzalo
 #                                               destination= options.p
-            ana.write_webpage(destination= "/sps/km3net/users/lunich/binned/arca-ps-aart_update_bands/scripts/declination_arca_21_2")
+            ana.write_webpage(destination=options.p)
 
         print("--- Code finished: %s seconds ---" % (time.time() - start_time))
         sys.exit()
