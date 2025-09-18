@@ -293,7 +293,7 @@ class ArcaBinnedPointSourceAnalysis ( BinnedPointSourceAnalysis ):
                func=get_gauss_expr_string(gauss_params)
         elif band == "0206":
                self.s_min, self.s_max = 0.2,0.6
-               gauss_params =  [180.0, 3.5, 0.7, 140.0, 3.5, 0.1, 38.0, 2.0, 0.3]
+               gauss_params =  [119.0, 4.0, 0.7, 40.0, 1.8, 0.4, 90.0, 3.4, 1.0]
                func=get_gauss_expr_string(gauss_params)
 
         elif band == "hist":
