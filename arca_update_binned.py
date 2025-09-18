@@ -88,7 +88,7 @@ else:
 os.system(f"mkdir -p {outputpath}")
 #print(ROOT.Det())
 
-# The following trick is needed to read old (existing) picklefiles.
+# The following trick is needed to read old (existing) picklefiles. 
 # It loads the streamerinfo needed to read them.# # next time, let's store the evt's in a root file.
 
 dum = ROOT.TFile("./N2022_PS_selection/datav6.2.jchain.aashower.dst.merged_9635_10005_pre_upm01_antinoise_upaam01.root")
@@ -281,7 +281,7 @@ class ArcaBinnedPointSourceAnalysis ( BinnedPointSourceAnalysis ):
           
         elif band == "1006":
                self.s_min, self.s_max = -1,-0.6
-               gauss_params = [316.0, 3.5, 0.6, 50.0, 2.0, 1.0, 50.0, 2.0, 1.0]
+               gauss_params = [90.0, 3.0, 0.9, 262.2, 3.5, 81.0, 50.0, 1.0, 1.0]
                func=get_gauss_expr_string(gauss_params)
         elif band == "0602":
                self.s_min, self.s_max = -0.6,-0.2
@@ -293,8 +293,8 @@ class ArcaBinnedPointSourceAnalysis ( BinnedPointSourceAnalysis ):
                func=get_gauss_expr_string(gauss_params)
         elif band == "0206":
                self.s_min, self.s_max = 0.2,0.6
-               gauss_params =  [187.0, 3.5, 0.6, 21.0, 2.0, 0.0, 26.0, 3.0, 1.0]
-               func=get_gauss_expr_string(gauss_params)       
+               gauss_params =  [180.0, 3.5, 0.7, 140.0, 3.5, 0.1, 38.0, 2.0, 0.3]
+               func=get_gauss_expr_string(gauss_params)
 
         elif band == "hist":
                self.s_min, self.s_max = -1,0.8
