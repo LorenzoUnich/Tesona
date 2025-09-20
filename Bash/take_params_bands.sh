@@ -27,3 +27,4 @@ for dir in "${cartelle[@]}"; do
     echo -e "$i\t$ss90\t$discovery\t$total_signal\t$total_noise\t$dir"
   done
 done >> extracted_summary_bands.txt
+echo "Completed!"
