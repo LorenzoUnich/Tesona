@@ -99,7 +99,7 @@ energy_min = options.M
 energy_max = options.m
 
 #@staticmethod
-catalouge_name = "catalogue_MeerKAT_final.csv"
+catalouge_name = "catalogue_declination_TRUE.csv"
 
 def get_gauss_expr_string(params):
     """
