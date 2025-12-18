@@ -164,6 +164,7 @@ class ArcaBinnedPointSourceAnalysis ( BinnedPointSourceAnalysis ):
     def __init__( self , name ) :
         
         self.name = name
+		self.s_min, self.s_max = -1, 1
         BinnedPointSourceAnalysis.__init__(self)
 
         self.candlist = CandidateList(options.t + '/inputdata/' + catalouge_name )
