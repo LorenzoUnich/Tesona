@@ -302,7 +302,7 @@ class ArcaBinnedPointSourceAnalysis ( BinnedPointSourceAnalysis ):
           else: 
               print("Something was wrong in the placement of this source in a band. I will use the traditional fit with no bands")
               func = "1033.9462443148202*exp(-0.5*pow((x-3.593382403792754)/0.5532062653963777,2))+9.750099808580014e-07*exp(-0.5*pow((x-4.292137178498489)/3.3293596715027034,2))+316.17663638080796*exp(-0.5*pow((x-2.2435144672644527)/1.1909797511602955,2))" 
-		elif band == "auto":
+		  elif band == "auto":
           candum = options.c          
           df =  df = pd.read_csv("/sps/km3net/users/lunich/binned/arca-ps-aart_update_bands/inputdata/"+ catalouge_name, sep = "\t", names = ["name", "type", "idk ", "declination", "extended", "galacitc"])
           print(df.declination)
