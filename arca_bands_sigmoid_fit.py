@@ -249,7 +249,9 @@ class ArcaBinnedPointSourceAnalysis ( BinnedPointSourceAnalysis ):
         '''
         print(options.B)
         band =  options.B
-        gauss_params_dictionary = {0: [90.0, 3.2, 0.87, 262, 3.54,0.54, 81, 1.4, 1.2], 1 : [196, 3.83, 0.39, 130, 3.1, 0.39, 100.0, 2.3, 1.18], 2: [60, 3.6, 0.33, 170, 3.6, 0.62, 51, 1.9, 1.0], 3 : [ 119, 3.6, 0.67, 40.0, 1.76, 0.37,89, 3.41, 0.56]}
+        functions_sigmoid  = ['(93.34446907532332+x)/(1+exp(2.660452255180891*x-6.999999290909457)) + (394.9487337400987/(sigma*sqrt(2*pi)))*exp(-power((x-3.471539726708467)/0.6398306223834892,2)/2)','(84.5232943419101+x)/(1+exp(1.901442374723312*x-6.99999999477764)) + (209.9999999592336/(sigma*sqrt(2*pi)))*exp(-power((x-3.539552559551672)/0.5358492201586051,2)/2)',
+							  '(46.007713104863726+x)/(1+exp(1.9592611936935997*x-6.999958002696216)) + (208.27389300135758/(sigma*sqrt(2*pi)))*exp(-power((x-3.5800856999053847)/0.5648488242921944,2)/2)',
+							  '(21.157315491834506+x)/(1+exp(1.7074160387113217*x-6.91814452892212)) + (201.35812737863176/(sigma*sqrt(2*pi)))*exp(-power((x-3.533225039671027)/0.6067112941056997,2)/2)']
         if band==  "all":
          self.s_min, self.s_max = -1, 1   # all declination!
          
@@ -287,19 +289,16 @@ class ArcaBinnedPointSourceAnalysis ( BinnedPointSourceAnalysis ):
           print("Dec is: ",dec_rad)
           print("Sin(dec) is: ",sin(dec_rad))
           if s_dec <=- 0.6:
-              gauss_params = gauss_params_dictionary[0]
-              func=get_gauss_expr_string(gauss_params)
+              
+              func=functions_sigmoid[0]
 
           elif s_dec >- 0.6 and s_dec <= -0.2:
-              gauss_params = gauss_params_dictionary[1]
-              func=get_gauss_expr_string(gauss_params)
+              func=functions_sigmoid[1]
           elif s_dec >-0.2 and s_dec <= 0.2:
-              gauss_params = gauss_params_dictionary[2]
-              func=get_gauss_expr_string(gauss_params)
+              func=functions_sigmoid[2]
 
           elif s_dec >0.2:
-              gauss_params = gauss_params_dictionary[3]
-              func=get_gauss_expr_string(gauss_params)
+              func=functions_sigmoid[3]
           else: 
               print("Something was wrong in the placement of this source in a band. I will use the traditional fit with no bands")
               func = "1033.9462443148202*exp(-0.5*pow((x-3.593382403792754)/0.5532062653963777,2))+9.750099808580014e-07*exp(-0.5*pow((x-4.292137178498489)/3.3293596715027034,2))+316.17663638080796*exp(-0.5*pow((x-2.2435144672644527)/1.1909797511602955,2))" 
