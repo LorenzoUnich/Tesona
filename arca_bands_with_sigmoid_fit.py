@@ -279,7 +279,7 @@ class ArcaBinnedPointSourceAnalysis ( BinnedPointSourceAnalysis ):
           #params = fit_histogram(ds)
           #func = get_gauss_expr_string(params)  
           func = ""
-        elif band == "auto":
+        elif band == "sigmoid":
           candum = options.c          
           df =  df = pd.read_csv("/sps/km3net/users/lunich/binned/arca-ps-aart_update_bands/inputdata/"+ catalouge_name, sep = "\t", names = ["name", "type", "idk ", "declination", "extended", "galacitc"])
           print(df.declination)
@@ -299,6 +299,32 @@ class ArcaBinnedPointSourceAnalysis ( BinnedPointSourceAnalysis ):
 
           elif s_dec >0.2:
               func=functions_sigmoid[3]
+          else: 
+              print("Something was wrong in the placement of this source in a band. I will use the traditional fit with no bands")
+              func = "1033.9462443148202*exp(-0.5*pow((x-3.593382403792754)/0.5532062653963777,2))+9.750099808580014e-07*exp(-0.5*pow((x-4.292137178498489)/3.3293596715027034,2))+316.17663638080796*exp(-0.5*pow((x-2.2435144672644527)/1.1909797511602955,2))" 
+		elif band == "auto":
+          candum = options.c          
+          df =  df = pd.read_csv("/sps/km3net/users/lunich/binned/arca-ps-aart_update_bands/inputdata/"+ catalouge_name, sep = "\t", names = ["name", "type", "idk ", "declination", "extended", "galacitc"])
+          print(df.declination)
+          dec =  df.declination[int(candum)]
+          dec_rad = math.radians(dec)
+          s_dec = sin(dec_rad)
+          print("Dec is: ",dec_rad)
+          print("Sin(dec) is: ",sin(dec_rad))
+          if s_dec <=- 0.6:
+              gauss_params = gauss_params_dictionary[0]
+              func=get_gauss_expr_string(gauss_params)
+
+          elif s_dec >- 0.6 and s_dec <= -0.2:
+              gauss_params = gauss_params_dictionary[1]
+              func=get_gauss_expr_string(gauss_params)
+          elif s_dec >-0.2 and s_dec <= 0.2:
+              gauss_params = gauss_params_dictionary[2]
+              func=get_gauss_expr_string(gauss_params)
+
+          elif s_dec >0.2:
+              gauss_params = gauss_params_dictionary[3]
+              func=get_gauss_expr_string(gauss_params)
           else: 
               print("Something was wrong in the placement of this source in a band. I will use the traditional fit with no bands")
               func = "1033.9462443148202*exp(-0.5*pow((x-3.593382403792754)/0.5532062653963777,2))+9.750099808580014e-07*exp(-0.5*pow((x-4.292137178498489)/3.3293596715027034,2))+316.17663638080796*exp(-0.5*pow((x-2.2435144672644527)/1.1909797511602955,2))" 
