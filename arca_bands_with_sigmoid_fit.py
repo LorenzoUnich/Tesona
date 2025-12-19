@@ -94,7 +94,7 @@ os.system(f"mkdir -p {outputpath}")
 dum = ROOT.TFile("./N2022_PS_selection/datav6.2.jchain.aashower.dst.merged_9635_10005_pre_upm01_antinoise_upaam01.root")
 
 #Differential sensitivity
-
+gauss_params_fitted = [ [90.0, 3.2, 0.87, 262, 3.54,0.54, 81, 1.4, 1.2], [196, 3.83, 0.39, 130, 3.1, 0.39, 100.0, 2.3, 1.18], [60, 3.6, 0.33, 170, 3.6, 0.62, 51, 1.9, 1.0], [ 119, 3.6, 0.67, 40.0, 1.76, 0.37,89, 3.41, 0.56]]
 energy_min = options.M
 energy_max = options.m
 
@@ -314,18 +314,18 @@ class ArcaBinnedPointSourceAnalysis ( BinnedPointSourceAnalysis ):
           print("Dec is: ",dec_rad)
           print("Sin(dec) is: ",sin(dec_rad))
           if s_dec <=- 0.6:
-              gauss_params = gauss_params_dictionary[0]
+              gauss_params = gauss_params_fitted[0]
               func=get_gauss_expr_string(gauss_params)
 
           elif s_dec >- 0.6 and s_dec <= -0.2:
-              gauss_params = gauss_params_dictionary[1]
+              gauss_params = gauss_params_fitted[1]
               func=get_gauss_expr_string(gauss_params)
           elif s_dec >-0.2 and s_dec <= 0.2:
-              gauss_params = gauss_params_dictionary[2]
+              gauss_params = gauss_params_fitted[2]
               func=get_gauss_expr_string(gauss_params)
 
           elif s_dec >0.2:
-              gauss_params = gauss_params_dictionary[3]
+              gauss_params = gauss_params_fitted[3]
               func=get_gauss_expr_string(gauss_params)
           else: 
               print("Something was wrong in the placement of this source in a band. I will use the traditional fit with no bands")
@@ -333,19 +333,19 @@ class ArcaBinnedPointSourceAnalysis ( BinnedPointSourceAnalysis ):
 
         elif band == "1006":
                self.s_min, self.s_max = -1,-0.6
-               gauss_params = gauss_params_dictionary[0]
+               gauss_params = gauss_params_fitted[0]
                func=get_gauss_expr_string(gauss_params)
         elif band == "0602":
                self.s_min, self.s_max = -0.6,-0.2
-               gauss_params = gauss_params_dictionary[1]
+               gauss_params = gauss_params_fitted[1]
                func=get_gauss_expr_string(gauss_params)
         elif band == "0202":
                self.s_min, self.s_max = -0.2,0.2
-               gauss_params = gauss_params_dictionary[2]
+               gauss_params = gauss_params_fitted[2]
                func=get_gauss_expr_string(gauss_params)
         elif band == "0206":
                self.s_min, self.s_max = 0.2,0.6
-               gauss_params = gauss_params_dictionary[3]
+               gauss_params = gauss_params_fitted[3]
                func=get_gauss_expr_string(gauss_params)
 
         elif band == "hist":
